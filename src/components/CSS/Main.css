@@ -1,0 +1,18 @@
+.input-small {
+	width: 500px;
+}
+
+.background {
+	background-color: black;
+}
+.window-main {
+	background-color: white;
+	margin-top: 50px;
+	margin-bottom: 50px;
+	margin-right: 50px;
+	margin-left: 50px;
+}
+
+textarea[type=text]:disabled {
+	background: #dddddd;
+}
