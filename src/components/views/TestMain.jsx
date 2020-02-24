@@ -2,16 +2,69 @@ import React, { Component } from 'react';
 import '../CSS/TestMain.css';
 import GeneratePDF from './PDFExport';
 import { withFirebase } from '../../firebase/context';
+
 class TestMain extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			notesArray: [],
 			transcriptArray: [],
+			currentNotesId: null,
 			currentNotes: '',
 			isSpeaking: false,
 			isEditingNotes: false
 		};
+	}
+
+	componentDidMount() {
+		this.getAllNotesFromDb();
+	}
+
+	saveNotesToDb() {
+		var today = new Date();
+		var date = today.getMonth() + 1 + '/' + today.getDate() + '/' + today.getFullYear();
+		var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+		var dateTime = date + ' ' + time;
+
+		const db = this.props.firebase.notes();
+		db.doc(this.state.currentNotesId).set({
+			currentNotes: this.state.currentNotes,
+			dateTime
+		});
+	}
+
+	addNotesToDb() {
+		var today = new Date();
+		var date = today.getMonth() + 1 + '/' + today.getDate() + '/' + today.getFullYear();
+		var time = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+		var dateTime = date + ' ' + time;
+		var x = Math.floor(Math.random() * 99999 + 1);
+		// var notesLength = this.state.notesArray.length;
+		const db = this.props.firebase.notes();
+		db.doc(x.toString()).set({
+			currentNotes: 'Edit Me..',
+			dateTime
+		});
+	}
+
+	deleteNotesFromDb() {
+		const db = this.props.firebase.notes();
+		db.doc(this.state.currentNotesId).delete();
+	}
+
+	getAllNotesFromDb() {
+		const db = this.props.firebase.notes();
+
+		db.onSnapshot((snapshot) => {
+			const data = snapshot.docs.map((doc) => {
+				var notesData = doc.data();
+				var id = doc.id;
+				return { ...notesData, id };
+			});
+			this.setState({
+				notesArray: data
+			});
+		});
 	}
 
 	addTranscriptToArray = (transcript) => {
@@ -53,13 +106,21 @@ class TestMain extends Component {
 			recognition
 		} = this.props;
 
+		var deleteNotesButton = (
+			<button className="btn btn-outline-danger" onClick={() => this.deleteNotesFromDb()}>
+				Delete
+			</button>
+		);
+
 		var editButton = this.state.isEditingNotes ? (
 			<button
 				className="btn btn-outline-success"
-				onClick={() =>
+				onClick={() => {
+					this.saveNotesToDb();
 					this.setState({
 						isEditingNotes: false
-					})}
+					});
+				}}
 			>
 				Save
 			</button>
@@ -120,6 +181,56 @@ class TestMain extends Component {
 			</button>
 		);
 
+		var addNotesButton = (
+			<button className="btn btn-info" onClick={() => this.addNotesToDb()}>
+				+
+			</button>
+		);
+
+		var NotesBox = this.state.notesArray.map((notes) => {
+			var activeNotes = notes.id === this.state.currentNotesId ? 'notes_list active_notes' : 'notes_list';
+			var deleteNotes = notes.id === this.state.currentNotesId ? deleteNotesButton : null;
+			var notesDisplay =
+				notes.currentNotes.length < 50 ? notes.currentNotes : notes.currentNotes.substring(0, 50) + '...';
+
+			return (
+				<div
+					onClick={() => {
+						this.setState(
+							{
+								currentNotesId: notes.id,
+								currentNotes: notes.currentNotes,
+								transcriptArray: []
+							},
+							() => {
+								this.setState({
+									transcriptArray: this.state.transcriptArray.concat(notes.currentNotes),
+									isEditingNotes: false
+								});
+							}
+						);
+					}}
+				>
+					<div class={activeNotes}>
+						<div class="notes_individual">
+							<div class="notes_img">
+								<img
+									src="https://i.pinimg.com/originals/64/34/d7/6434d72ce9e16251c4f41f4e5a146567.png"
+									alt="sunil"
+								/>
+							</div>
+							<div class="notes_content">
+								<h5>
+									Test {notes.id} <span class="chat_date">{notes.dateTime}</span>
+								</h5>
+								<p>{notesDisplay}</p> {deleteNotes}
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		});
+
 		return (
 			<div>
 				<link
@@ -130,7 +241,7 @@ class TestMain extends Component {
 				<div class="container">
 					<div class="app-container">
 						<div class="notes-container">
-							<div class="inbox_notes">
+							<div class="transcriber_notes">
 								<div class="headind_srch">
 									<h4>Doctor Notes Transcriber</h4>
 									<hr />
@@ -139,7 +250,8 @@ class TestMain extends Component {
 											Recent <p className="text-muted">Notes</p>
 										</h4>
 									</div>
-									<div class="srch_bar">
+
+									<div class="side_logo">
 										<div class="stylish-input-group">
 											<img
 												src="https://i.imgur.com/1loYhAT.png"
@@ -148,149 +260,11 @@ class TestMain extends Component {
 											<span class="input-group-addon" />{' '}
 										</div>
 									</div>
+									<div>{addNotesButton}</div>
 								</div>
-								<div class="inbox_chat">
-									<div class="chat_list active_chat">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://i.pinimg.com/originals/64/34/d7/6434d72ce9e16251c4f41f4e5a146567.png"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://cdn.dribbble.com/users/1050535/screenshots/5466232/doc-icon_2x.png"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeYPnCXIXP8ZOPk91l2K3ExXoUhIN1s5i3cnYTp6TpwZSWid7Q&s"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQeYPnCXIXP8ZOPk91l2K3ExXoUhIN1s5i3cnYTp6TpwZSWid7Q&s"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://image.flaticon.com/icons/png/512/1869/1869354.png"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://ptetutorials.com/images/user-profile.png"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-									<div class="chat_list">
-										<div class="chat_people">
-											<div class="chat_img">
-												{' '}
-												<img
-													src="https://ptetutorials.com/images/user-profile.png"
-													alt="sunil"
-												/>{' '}
-											</div>
-											<div class="chat_ib">
-												<h5>
-													Test User <span class="chat_date">Dec 25</span>
-												</h5>
-												<p>
-													Test, which is a new approach to have all solutions astrology under
-													one roof.
-												</p>
-											</div>
-										</div>
-									</div>
-								</div>
+
+								{NotesBox}
+								<div class="notes_box" />
 							</div>
 							<div class="web-speech" style={{ backgroundColor: 'whitesmoke' }}>
 								<h5>Take Notes </h5>

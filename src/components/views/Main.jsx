@@ -16,6 +16,15 @@ class Main extends Component {
 
 	componentDidMount() {
 		console.log(this.props.firebase.notes);
+
+		const db = this.props.firebase.notes();
+		db.onSnapshot((snapshot) => {
+			snapshot.docs.forEach((doc) => {
+				this.setState({
+					notesArray: this.state.notesArray.concat({ ...doc.data(), id: doc.id })
+				});
+			});
+		});
 	}
 
 	addTranscriptToArray = (transcript) => {
@@ -46,22 +55,9 @@ class Main extends Component {
 		});
 	};
 
-	addCurrentNotesToCloud = () => {
-		// this.props.firebase.notes
-		// 	.doc('LA')
-		// 	.set({
-		// 		currentNotes: 'USA'
-		// 	})
-		// 	.then(function() {
-		// 		console.log('Document successfully written!');
-		// 	})
-		// 	.catch(function(error) {
-		// 		console.error('Error writing document: ', error);
-		// 	});
-		this.props.firebase.notes().get().then((querySnapshot) => {
-			const data = querySnapshot.docs.map((doc) => doc.data());
-			console.log(data); // array of cities objects
-		});
+	addCurrentNotesToNotesArray = () => {
+		const db = this.props.firebase.notes();
+		console.log(this.state.notesArray);
 	};
 	render() {
 		var {
@@ -78,7 +74,6 @@ class Main extends Component {
 			<button
 				className="btn btn-outline-success"
 				onClick={() => {
-					this.addCurrentNotesToCloud();
 					this.setState({
 						isEditingNotes: false
 					});
@@ -132,8 +127,19 @@ class Main extends Component {
 			</button>
 		);
 
+		var NotesBox = this.state.notesArray.map((notes) => {
+			return (
+				<div>
+					Hello
+					{notes.id}
+					<button onClick={() => console.log(notes)}>View Me</button>
+				</div>
+			);
+		});
+
 		return (
 			<div>
+				{NotesBox}
 				<h1>Web Speech API</h1>
 
 				{!this.state.isSpeaking ? (
@@ -177,15 +183,8 @@ class Main extends Component {
 				<textarea type="text" className="form-control" placeholder="Voice to text..." value={transcript} />
 				{exportPDFButton}
 				{editButton}
-
+				<button onClick={() => this.addCurrentNotesToNotesArray()}>Print Notes Array</button>
 				{notesTextArea}
-				{/* <ul className="list-group">
-					{this.state.notesArray.map((i) => (
-						<li className="list-group-item" key={i}>
-							<span>{i} </span>
-						</li>
-					))}
-				</ul> */}
 			</div>
 		);
 	}

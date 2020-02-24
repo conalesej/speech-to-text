@@ -8,7 +8,7 @@ img {
 body {
 	background-color: blue;
 }
-.inbox_notes {
+.transcriber_notes {
 	background: #f8f8f8 none repeat scroll 0 0;
 	float: left;
 	overflow: hidden;
@@ -28,7 +28,7 @@ body {
 	float: left;
 	width: 40%;
 }
-.srch_bar {
+.side_logo {
 	display: inline-block;
 	text-align: right;
 	width: 60%;
@@ -46,56 +46,56 @@ body {
 	margin: auto;
 }
 
-.srch_bar .input-group-addon button {
+.side_logo .input-group-addon button {
 	background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
 	border: medium none;
 	padding: 0;
 	color: #707070;
 	font-size: 18px;
 }
-.srch_bar .input-group-addon {
+.side_logo .input-group-addon {
 	margin: 0 0 0 -27px;
 }
 
-.chat_ib h5 {
+.notes_content h5 {
 	font-size: 15px;
 	color: #464646;
 	margin: 0 0 8px 0;
 }
-.chat_ib h5 span {
+.notes_content h5 span {
 	font-size: 13px;
 	float: right;
 }
-.chat_ib p {
+.notes_content p {
 	font-size: 14px;
 	color: #989898;
 	margin: auto;
 }
-.chat_img {
+.notes_img {
 	float: left;
 	width: 11%;
 }
-.chat_ib {
+.notes_content {
 	float: left;
 	padding: 0 0 0 15px;
 	width: 88%;
 }
 
-.chat_people {
+.notes_individual {
 	overflow: hidden;
 	clear: both;
 }
-.chat_list {
+.notes_list {
 	border-bottom: 1px solid #c4c4c4;
 	margin: 0;
 	padding: 18px 16px 10px;
 }
-.inbox_chat {
+.notes_box {
 	height: 550px;
 	overflow-y: scroll;
 }
 
-.active_chat {
+.active_notes {
 	background: #ebebeb;
 }
 
@@ -197,4 +197,11 @@ body {
 }
 .notes-shadow {
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.button-invisible {
+	background-color: whitesmoke;
+	border: none;
+	margin: 0px 0px 0px 0px;
+	padding: 1px 1px;
 }
