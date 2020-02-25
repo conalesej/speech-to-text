@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 import '../CSS/TestMain.css';
 import GeneratePDF from './PDFExport';
 import { withFirebase } from '../../firebase/context';
-
+var x = Math.floor(Math.random() * 99999 + 1);
 class TestMain extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			notesArray: [],
 			transcriptArray: [],
-			currentNotesId: null,
-			currentNotes: '',
+			currentNotesId: x.toString(),
+			currentNotes: ' ',
 			isSpeaking: false,
-			isEditingNotes: false
+			isEditingNotes: true
 		};
 	}
 
@@ -42,7 +42,7 @@ class TestMain extends Component {
 		// var notesLength = this.state.notesArray.length;
 		const db = this.props.firebase.notes();
 		db.doc(x.toString()).set({
-			currentNotes: 'Edit Me..',
+			currentNotes: ' ',
 			dateTime
 		});
 	}
@@ -205,7 +205,7 @@ class TestMain extends Component {
 							() => {
 								this.setState({
 									transcriptArray: this.state.transcriptArray.concat(notes.currentNotes),
-									isEditingNotes: false
+									isEditingNotes: true
 								});
 							}
 						);
@@ -301,6 +301,9 @@ class TestMain extends Component {
 									onClick={() => {
 										this.addTranscriptToArray(transcript);
 										resetTranscript();
+										this.setState({
+											isEditingNotes: true
+										});
 									}}
 								>
 									✓
