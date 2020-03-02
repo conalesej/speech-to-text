@@ -3,6 +3,7 @@ import '../CSS/TestMain.css';
 import GeneratePDF from './PDFExport';
 import { withFirebase } from '../../firebase/context';
 var x = Math.floor(Math.random() * 99999 + 1);
+
 class TestMain extends Component {
 	constructor(props) {
 		super(props);
@@ -45,6 +46,20 @@ class TestMain extends Component {
 			currentNotes: ' ',
 			dateTime
 		});
+
+		this.setState(
+			{
+				currentNotesId: x.toString(),
+				currentNotes: ' ',
+				transcriptArray: []
+			},
+			() => {
+				this.setState({
+					transcriptArray: this.state.transcriptArray.concat(' '),
+					isEditingNotes: true
+				});
+			}
+		);
 	}
 
 	deleteNotesFromDb() {
@@ -175,15 +190,20 @@ class TestMain extends Component {
 			<button
 				className="btn btn-outline-dark m-2"
 				onClick={() => GeneratePDF(this.state.currentNotes)}
-				style={{ height: '8%', width: '8%', marginBottom: '3px', marginTop: '3px' }}
+				style={{ width: '18%', marginBottom: '3px', marginTop: '3px' }}
 			>
-				<img src="https://www.shieldui.com/sites/default/files/blogs/pdf-icon.png" alt="my image" />
+				Export to{' '}
+				<img
+					src="https://www.shieldui.com/sites/default/files/blogs/pdf-icon.png"
+					style={{ height: '15%', width: '15%', marginBottom: '3px', marginTop: '3px' }}
+					alt="my image"
+				/>
 			</button>
 		);
 
 		var addNotesButton = (
-			<button className="btn btn-info" onClick={() => this.addNotesToDb()}>
-				+
+			<button className="btn btn-outline-info" onClick={() => this.addNotesToDb()}>
+				+ Add Notes
 			</button>
 		);
 
@@ -244,6 +264,7 @@ class TestMain extends Component {
 							<div class="transcriber_notes">
 								<div class="headind_srch">
 									<h4>Doctor Notes Transcriber</h4>
+
 									<hr />
 									<div class="recent_heading">
 										<h4>
@@ -263,8 +284,7 @@ class TestMain extends Component {
 									<div>{addNotesButton}</div>
 								</div>
 
-								{NotesBox}
-								<div class="notes_box" />
+								<div class="notes_box">{NotesBox}</div>
 							</div>
 							<div class="web-speech" style={{ backgroundColor: 'whitesmoke' }}>
 								<h5>Take Notes </h5>
@@ -306,7 +326,7 @@ class TestMain extends Component {
 										});
 									}}
 								>
-									✓
+									✓ Next Line
 								</button>
 								{listening ? <span className="text-muted">Recording...</span> : null}
 								<textarea
